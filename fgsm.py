@@ -13,7 +13,7 @@ import numpy as np
 
 # Path to the directory of the images
 # NOTE: need to move images out of all folders into the main directory for this to work
-dataset_dir = "./data/dogs/*/*/*.{}".format('jpg')
+dataset_dir = "./data/dogs/*.{}".format('jpg')
 
 FLAGS = flags.FLAGS
 FLAGS.nb_classes = 10
@@ -48,7 +48,7 @@ with tf.Session() as sess:
     image_tensor = image_tensor[np.newaxis,:]
     
     # Target class
-    adv_x = fgsm(x, predictions, eps=eps)
+    adv_x = fgsm(x, predictions, eps=_eps)
     print(adv_x)
     
     # Finish off the filename queue coordinator.
