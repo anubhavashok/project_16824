@@ -16,7 +16,7 @@ import os
 
 
 FLAGS = flags.FLAGS
-FLAGS.nb_classes = 10
+FLAGS.nb_classes = 1000
 
 _gamma = 0.001
 target = 2
@@ -29,15 +29,15 @@ keras.backend.set_session(sess)
 raw_img = tf.placeholder(tf.float32, shape=(None, None, 3))
 img = tf.image.resize_image_with_crop_or_pad(raw_img, 124, 124)
 #input = Input(shape=(None, 224, 224, 3), name='image_input')
-vgg_16_conv = vgg16.VGG16(input_tensor=tf.expand_dims(img, 0), weights='imagenet', include_top=False)
-x = Flatten(name='flatten')(vgg_16_conv.output)
+vgg_16_conv = vgg16.VGG16(input_tensor=tf.expand_dims(img, 0), weights='imagenet', include_top=True)
+#x = Flatten(name='flatten')(vgg_16_conv.output)
 #x = Dense(4096, activation='relu', name='fc1')(x)
 #x = Dense(4096, activation='relu', name='fc2')(x)
-x = Dense(10, activation='softmax', name='predictions')(x)
+#x = Dense(10, activation='softmax', name='predictions')(x)
 model = Model(input=vgg_16_conv.input, output=x)
 model.summary()
 predictions = model(tf.expand_dims(img, 0))
-grads = jacobian_graph(predictions, img, 10) 
+grads = jacobian_graph(predictions, img, 1000) 
 print(predictions.shape)
 sess.run(tf.global_variables_initializer())
 

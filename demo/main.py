@@ -31,18 +31,18 @@ UPLOAD_FOLDER = '/Users/anubhav/Desktop/16824/project_16824/demo/static/'
 
 sess = tf.InteractiveSession()
 keras.backend.set_session(sess)
-#raw_img = tf.placeholder(tf.float32, shape=(None, None, 3))
-#img = tf.image.resize_images(raw_img, [224, 224], align_corners=True)
-#model = vgg16.VGG16(input_tensor=tf.expand_dims(img, 0), weights='imagenet', include_top=False)
-model = vgg16.VGG16(weights='imagenet', include_top=True)
-#predictions = model.predict(tf.expand_dims(img, 0))
+raw_img = tf.placeholder(tf.float32, shape=(None, None, 3))
+img = tf.image.resize_images(raw_img, [224, 224], align_corners=True)
+model = vgg16.VGG16(input_tensor=tf.expand_dims(img, 0), weights='imagenet', include_top=True)
+#model = vgg16.VGG16(weights='imagenet', include_top=True)
+predictions = model(tf.expand_dims(img, 0))
 #print(predictions.shape)
 #sess.run(tf.global_variables_initializer())
 #sess.run(tf.local_variables_initializer())
 
 def detect(im):
-    return model.predict(np.expand_dims(im, 0))
-    #return sess.run(predictions, feed_dict={raw_img: im})
+    #return model.predict(np.expand_dims(im, 0))
+    return sess.run(predictions, feed_dict={raw_img: im})
 
 # webapp
 app = Flask(__name__)
@@ -82,8 +82,8 @@ def main():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             # Perform prediction here
             im = cv2.imread('./static/dog.jpg').astype(float)
-            im = preprocess_input(np.expand_dims(im, 0))[0]
             im = cv2.resize(im, (224, 224))
+            im = preprocess_input(np.expand_dims(im, 0))[0]
             res = detect(im)
             topk = res.flatten().argsort()[-5:]
             print(res.flatten()[topk])

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dog or Not!?</title>
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"> -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <!-- <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script> -->
+    <!-- <script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script> -->
+  </head>
+  <body>
+    <div class="container">
+      <h1>Dog or Not?!</h1>
+      <div class="row">
+          <img id="dogImage" src="{{url_for('static', filename='dog.jpg')}}" width="224" height="224">
+      </div>
+      <div class="row">
+          <h1 id="result"> {{ dog_res }}</h1>
+      </div>
+    </div>
+  </body>
+<form action="" method="post" enctype="multipart/form-data">
+  <input type="file" name="file" accept="image/*">
+  <input type="submit">
+</form>
+<script>
+$("input").change(function(e) {
+
+    for (var i = 0; i < e.originalEvent.srcElement.files.length; i++) {
+
+        var file = e.originalEvent.srcElement.files[i];
+
+        var img = document.createElement("img");
+        var reader = new FileReader();
+        reader.onloadend = function() {
+             img.src = reader.result;
+             $("#dogImage").attr('src', reader.result);
+        }
+        reader.readAsDataURL(file);
+        #$("#dogImage").after(img)
+    }
+});
+
+</script>
+</html>
+
