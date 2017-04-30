@@ -18,34 +18,37 @@ import os
 FLAGS = flags.FLAGS
 FLAGS.nb_classes = 10
 
-_gamma = 0.1
+_gamma = 0.001
 target = 2
 
-imgs = glob('./data/dogs/*.jpg')
+#imgs = glob('./data/dogs_cropped/*.jpg')
+imgs = glob('../dogs/*.jpg')
 
 sess = tf.InteractiveSession()
 keras.backend.set_session(sess)
-raw_img = tf.placeholder(tf.float32, shape=(None, None, None, 3))
-img = tf.image.resize_image_with_crop_or_pad(raw_img, 224, 224)
+raw_img = tf.placeholder(tf.float32, shape=(None, None, 3))
+img = tf.image.resize_image_with_crop_or_pad(raw_img, 124, 124)
 #input = Input(shape=(None, 224, 224, 3), name='image_input')
-vgg_16_conv = vgg16.VGG16(input_tensor=img, weights='imagenet', include_top=False)
+vgg_16_conv = vgg16.VGG16(input_tensor=tf.expand_dims(img, 0), weights='imagenet', include_top=False)
 x = Flatten(name='flatten')(vgg_16_conv.output)
-x = Dense(4096, activation='relu', name='fc1')(x)
-x = Dense(4096, activation='relu', name='fc2')(x)
+#x = Dense(4096, activation='relu', name='fc1')(x)
+#x = Dense(4096, activation='relu', name='fc2')(x)
 x = Dense(10, activation='softmax', name='predictions')(x)
 model = Model(input=vgg_16_conv.input, output=x)
 model.summary()
-predictions = model(img)
+predictions = model(tf.expand_dims(img, 0))
 grads = jacobian_graph(predictions, img, 10) 
+print(predictions.shape)
 sess.run(tf.global_variables_initializer())
 
-print(sess.run(predictions, feed_dict={raw_img:[cv2.imread(imgs[0])]}))
+#print(sess.run(predictions, feed_dict={raw_img:cv2.imread(imgs[0])}))
 
 for i in imgs:
     data = cv2.imread(i)
-    data = sess.run(img, feed_dict={raw_img:[data]}) 
+    data = sess.run(img, feed_dict={raw_img:data}) 
+    print(data.shape)
     adv_x, res, percent_perturb = jsma(sess, img, predictions, grads,
-                                               data,
+                                               np.expand_dims(data, 0),
                                                target, theta=1, gamma=_gamma,
                                                increase=True, back='tf',
                                                clip_min=0, clip_max=1)

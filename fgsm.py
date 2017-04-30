@@ -11,15 +11,16 @@ import numpy as np
 import cv2
 import os
 
-imgs = glob('./data/dogs/*.jpg')
+imgs = glob('../dogs/*.jpg')
 _eps = 0.1
 sess = tf.InteractiveSession()
 keras.backend.set_session(sess)
 x = tf.placeholder(tf.float32, shape=(None, 224, 224, 3))
-raw_img = tf.placeholder(tf.float32, shape=(None, None, None, 3))
-img = tf.image.resize_image_with_crop_or_pad(raw_img, 224, 224)
+raw_img = tf.placeholder(tf.float32, shape=(None, None, 3))
+#img = tf.image.resize_image_with_crop_or_pad(raw_img, 224, 224)
+img = tf.resize_images(raw_img, [224, 224], alignCorners=True)
 #model = cnn_model(img_rows=224, img_cols=224, channels=3)
-model = vgg16.VGG16(input_tensor= img, weights='imagenet')
+model = vgg16.VGG16(input_tensor=tf.expand_dims(img, 0), weights='imagenet')
 #predictions = model(img)
 #adv_x, signed_grad = fgsm(img, predictions, eps=_eps)
 sess.run(tf.global_variables_initializer())
@@ -29,7 +30,7 @@ for i in imgs:
     data = cv2.imread(i)
     #adv = sess.run(adv_x, {raw_img: [data], keras.backend.learning_phase(): 0})
     #grad = sess.run(signed_grad, {raw_img: [data], keras.backend.learning_phase(): 0})
-    ri = sess.run(img, {raw_img: [data]})
+    ri = sess.run(img, {raw_img: data})
     #adv_path = './data/dogs_grad_{}/'.format(_eps) + os.path.basename(i).split('.')[0] + '.jpg'
     path = './data/dogs_cropped/' + os.path.basename(i)
     #cv2.imwrite(adv_path, adv[0])
